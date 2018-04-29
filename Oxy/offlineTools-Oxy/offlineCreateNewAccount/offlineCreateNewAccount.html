@@ -1,0 +1,173 @@
+ <!DOCTYPE html>
+<head>
+	<meta charset="utf-8"> 
+	<title>Offline version of Oxy signed voting transaction generator</title>
+	<link rel="stylesheet" href="myliskstyle.css">
+	<script src="lisk-js.js"></script>
+	<script src="words.json"></script>
+</head>
+<body>    
+	<h1>Instructions to generate a new account (Passphrase + account number ....)</h1>
+	<h2>1. Just push the button. Everytime you push it, a new account will be generated!</h2>
+	<h2>Note. Make sure you safe your passphrase in a secure place before you send OXY to your account!</h2>
+	<h2>Note. Test your account (Send AND Receive) with small amounts before you send large amounts of OXY!</h2>
+	<h2>Note. A copy to clipboard function will be added later.</h2>
+	<form id="frm" name="frm">
+
+	  <input type="button" onclick="getNewAccount()" value="Generate new account" class="btn"><br>
+	  
+	  <label id="transLabel"><strong>Passphrase: </strong></label>
+	  <output name="passphrase" id="passphrase"></output><br>
+	  
+	  <label id="transLabel"><strong>Public key: </strong></label>
+	  <output name="publickey" id="publickey"></output><br>
+	  
+	  <label id="transLabel"><strong>Private key: </strong></label>
+	  <output name="privatekey" id="privatekey"></output><br>
+	  
+	  <label id="transLabel"><strong>Account address: </strong></label>
+	  <output name="accaddress" id="accaddress"></output><br>
+	  
+	</form><br><br><br><br>
+	<script>
+		var randomNumber;
+		var newPassphrase = '';
+		
+		function getNewAccount(){
+
+			newPassphrase=getRandomPassphrase();
+			
+			var keys = lisk.crypto.getKeys(newPassphrase);
+			var pubKey = keys['publicKey'];
+			var privKey = keys['privateKey'];
+			var accountAddress = lisk.crypto.getAddress(pubKey);
+
+			document.forms['frm'].elements['passphrase'].value = newPassphrase;
+			document.forms['frm'].elements['publickey'].value = pubKey;
+			document.forms['frm'].elements['privatekey'].value = privKey;
+			document.forms['frm'].elements['accaddress'].value = accountAddress;
+			//console.log(accountAddress);
+		}
+
+		function copyClipboard(){
+			var dummy = document.createElement("input");
+			document.body.appendChild(dummy);
+			dummy.setAttribute("id", "trans");
+			dummy.setAttribute('value', document.forms['frm'].elements['transaction'].value);
+			dummy.select();
+			document.execCommand("copy");
+			document.body.removeChild(dummy);
+		}
+		
+		function getRandomPassphrase(){
+			var strPassphrase = '';
+			var lPassphrase128 = '';
+			var lPassphrase132 = '';
+			var checksum;
+			var randomWords = [];		// digital words as in 2 bytes (16 bits) not real words!
+			var start=0;
+			var end=11;
+
+			randomWords[1]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[2]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[3]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[4]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[5]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[6]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[7]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+			randomWords[8]=addZerosToHex(Math.floor(Math.random()*65535).toString(16));
+
+			lPassphrase128=randomWords[1]+randomWords[2]+randomWords[3]+randomWords[4]+randomWords[5]+randomWords[6]+randomWords[7]+randomWords[8];
+			var sha256Hash = lisk.crypto.getSha256Hash(lPassphrase128,"hex");
+			lPassphrase128=hexToBin(lPassphrase128);
+			checksum=addZerosToBin(sha256Hash[0]).toString(2).slice(0,4);
+			lPassphrase132=lPassphrase128+checksum;
+
+			for (let i = 0; i < 12; i++) {
+				strPassphrase = strPassphrase.trim() + " " + wordsBip39[parseInt(lPassphrase132.slice(start,end),2)];
+				start = start + 11;
+				end = end + 11;
+			}
+
+			return strPassphrase;
+
+			function addZerosToHex(bNumber){
+				var strTmp;
+				strTmp=bNumber.toString();
+				while (strTmp.length < 4) {
+					strTmp="0"+strTmp;
+				}
+				return strTmp;
+			}
+
+			function addZerosToBin(bNumber){
+				var strTmp;
+				strTmp=bNumber.toString(2);
+				while (strTmp.length < 8) {
+					strTmp="0"+strTmp;
+				}
+				return strTmp;
+			}
+
+			function hexToBin(strHex){
+				var iLenght=strHex.length;
+				var strBinNumber="";
+				for (let i = 0; i < strHex.length; i++) {
+					switch (strHex[i]) {
+						case "0":
+							strBinNumber=strBinNumber+"0000"
+							break;
+						case "1":
+							strBinNumber=strBinNumber+"0001"
+							break;
+						case "2":
+							strBinNumber=strBinNumber+"0010"
+							break;
+						case "3":
+							strBinNumber=strBinNumber+"0011"
+							break;
+						case "4":
+							strBinNumber=strBinNumber+"0100"
+							break;
+						case "5":
+							strBinNumber=strBinNumber+"0101"
+							break;
+						case "6":
+							strBinNumber=strBinNumber+"0110"
+							break;
+						case "7":
+							strBinNumber=strBinNumber+"0111"
+							break;
+						case "8":
+							strBinNumber=strBinNumber+"1000"
+							break;
+						case "9":
+							strBinNumber=strBinNumber+"1001"
+							break;
+						case "a":
+							strBinNumber=strBinNumber+"1010"
+							break;
+						case "b":
+							strBinNumber=strBinNumber+"1011"
+							break;
+						case "c":
+							strBinNumber=strBinNumber+"1100"
+							break;
+						case "d":
+							strBinNumber=strBinNumber+"1101"
+							break;
+						case "e":
+							strBinNumber=strBinNumber+"1110"
+							break;
+						case "f":
+							strBinNumber=strBinNumber+"1111"
+							break;
+						default:
+							break;
+					}
+				}
+				return strBinNumber;
+			}
+		}		
+	</script>
+</body>

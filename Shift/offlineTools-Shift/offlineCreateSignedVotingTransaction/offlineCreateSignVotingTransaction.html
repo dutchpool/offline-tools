@@ -1,0 +1,128 @@
+ <!DOCTYPE html>
+<head>
+	<meta charset="utf-8"> 
+	<title>Offline version of Lisk signed voting transaction generator</title>
+	<link rel="stylesheet" href="myliskstyle.css">
+	<script src="lisk-js.js"></script>
+	<script type="text/javascript" src="qrcode.js"></script>
+</head>
+<body>    
+	<h1>Instructions to generate a signed voting transaction</h1>
+	<h2>1. Insert correct passphrase's, else the transaction will not be signed correctly</h2>
+	<h2>2. For every voting transaction fee is 1.0 SHIFT. The fee will be taken from the account that belongs to the specified passphrase!</h2>
+	<h2>3. This tool is only for creating  and signing the voting transaction. You are not able to send it. Use onlineTool to send it.</h2>
+	<h2>4. Scan the QRCode(s) at the bottom of this page with your online PC and send the transaction.</h2>
+	<h2>Note. Due to the high anount of data when you specify 33 delegates. The transactions is split into 2 QR-Codes. Please scan both</h2>
+	<h2>Note. One single QR-Code would be too complex and not be scanable with a standard usb-cam</h2>
+	<form id="frm" name="frm">
+	  <input type="password" name="pass1" id="pass1" placeholder="Your passphrase" required>
+	  <label><input type="checkbox" onclick="togglePassword(1)" name="chkPass1" id="chkPass1" value="show pw" class="chk"></label><br>
+	  <input type="password" name="pass2" id="pass2" placeholder="Your second passphrase (leave blank if you haven't)">
+	  <label><input type="checkbox" onclick="togglePassword(2)" name="chkPass2" id="chkPass2" value="show pw" class="chk"></label><br>
+	  <input type="text" name="deleg" id="deleg" placeholder="Array of delagate PUBLIC KEYS" required><br>
+	  <p>Example: +473c354cdf627b82e9113e02a337486dd3afc5615eb71ffd311c5a0beda37b8c,+eaa049295d96618c51eb30deffe7fc2cc8bfc13190cb97f3b513dd060b000a46</p>
+	  <p>Do not add additional characters like "'[]{} .....  !!!!!</p><br><br>
+	  <input type="button" onclick="get()" value="Generate voting transaction" class="btn"><br>
+	  <label id="transLabel"><strong>Transaction: </strong></label>
+	  <output name="transaction" id="transaction"></output>
+	</form>
+	<input type="button" onclick="copyClipboard()" value="Copy transaction to clipboard" class="btn">
+	<input type="button" onclick="clearData()" value="Clear data and QR-Code" class="btn">
+	<div id="qrcode1" style="width:600px; height:600px; margin-top:15px;"></div><br><br>
+	<div id="qrcode2" style="width:600px; height:600px; margin-top:15px;"></div>
+	<script>
+		var qrcode1 = "";
+		var qrcode2 = "";
+		clearData();
+		
+		function get(){
+			var strQR ='';
+			var strQR1 ='';
+			var strQR2 ='';
+			qrcode1 = new QRCode(document.getElementById("qrcode1"), {
+				width : 600,
+				height : 600,
+				correctLevel : QRCode.CorrectLevel.L
+			});
+			qrcode2 = new QRCode(document.getElementById("qrcode2"), {
+				width : 600,
+				height : 600,
+				correctLevel : QRCode.CorrectLevel.L
+			});			
+			var pass1 = document.forms['frm'].elements['pass1'].value;
+			pass1 = pass1.trim();
+			var pass2 = document.forms['frm'].elements['pass2'].value;
+			pass2 = pass2.trim();
+			var deleg = document.forms['frm'].elements['deleg'].value;
+			deleg = deleg.trim();
+			var transaction = lisk.vote.createVote(pass1, deleg.split(",") , pass2);
+			document.getElementById("transaction").innerHTML = JSON.stringify(transaction);
+			
+			function makeCode (elText, nbr) {
+				if (!elText) {
+					alert("Transaction was empty");
+					elText.focus();
+					return;
+				}
+				if (nbr == 1){
+					qrcode1.makeCode(elText);
+				}else if (nbr == 2){
+					qrcode2.makeCode(elText);
+				}else{
+					return;
+				}
+			}
+			
+			strQR = JSON.stringify(transaction);
+			if (strQR.length>1340){
+				strQR1 = strQR.substring(0,1340);
+				strQR2 = strQR.substring(1340,strQR.length);
+				makeCode(strQR1,1);
+				makeCode(strQR2,2);
+			} else {
+				makeCode(strQR,1);
+			}
+		}
+		
+		function copyClipboard(){
+			var dummy = document.createElement("input");
+			document.body.appendChild(dummy);
+			dummy.setAttribute("id", "trans");
+			dummy.setAttribute('value', document.forms['frm'].elements['transaction'].value);
+			dummy.select();
+			document.execCommand("copy");
+			document.body.removeChild(dummy);
+		}
+
+		function clearData(){
+			//document.forms['frm'].elements['pass1'].value = "";
+			//document.forms['frm'].elements['pass2'].value = "";
+			document.getElementById("chkPass1").checked = false;
+			document.getElementById("chkPass2").checked = false;			
+			document.getElementById("transaction").innerHTML = "";
+			document.getElementById("qrcode1").innerHTML = "";
+			document.getElementById("qrcode2").innerHTML = "";
+			document.forms['frm'].elements['deleg'].value = "";
+		}
+		
+		function togglePassword(num){
+			switch(num) {
+				case 1:
+					var chkPass = document.getElementById("chkPass1");
+					var strPass = document.getElementById("pass1");
+					break;
+				case 2:
+					var chkPass = document.getElementById("chkPass2");
+					var strPass = document.getElementById("pass2");
+					break;
+				default:
+					return;
+			} 
+			if (chkPass.checked == true){
+				strPass.setAttribute('type', 'text');
+			} else {
+				strPass.setAttribute('type', 'password');
+			}
+		}		
+	</script>
+</body>

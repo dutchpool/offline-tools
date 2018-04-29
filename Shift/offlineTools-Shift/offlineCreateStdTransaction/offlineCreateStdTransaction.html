@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8"> 
+	<title>Offline version of Lisk standard transaction generator</title>
+	<link rel="stylesheet" href="myliskstyle.css">
+	<script src="lisk-js.js"></script>
+	<script type="text/javascript" src="qrcode.js"></script>	
+</head>
+<body>
+<h1>Instruction to create a standard transaction (Type 0 / send LSK)</h1>
+<h2>1. Insert correct passphrase's, else the transaction will not be signed correctly</h2>
+<h2>2. For every transaction fee is 0.01 Shift. The fee will be taken from account balance, NOT FROM AMOUNT which you insert!</br> Please remember about it when you plan to send specific amount</h2>
+<h2>3. This tool is only for creating and signing transaction. To send your LSK use the onlineTool.</h2>
+	<h2>4. Scan the QRCode at the bottom of this page with your online PC and send the transaction.</h2>
+<form id="frm" name="frm">
+  <input type="password" name="pass1" id="pass1" placeholder="Your passphrase" required>
+  <label><input type="checkbox" onclick="togglePassword(1)" name="chkPass1" id="chkPass1" value="show pw" class="chk"></label><br>
+  <input type="password" name="pass2" id="pass2" placeholder="Your second passphrase (leave blank if you haven't)">
+  <label><input type="checkbox" onclick="togglePassword(2)" name="chkPass2" id="chkPass2" value="show pw" class="chk"></label><br>
+  
+  <input type="text" name="amount" id ="amount" placeholder="Amount" required><br>
+  
+  
+  <input type="text" name="rec" id="rec" placeholder="Recipient address" required><br>
+  <input type="button" onclick="get()" value="Generate transaction" class="btn"><br>
+  <label id="transLabel"><strong>Transaction: </strong></label>
+  <output name="transaction" id="transaction"></output>
+</form>
+<input type="button" onclick="copyClipboard()" value="Copy transaction to clipboard" class="btn">
+<input type="button" onclick="clearData()" value="Clear data and QR-Code" class="btn">
+<div id="qrcode" style="width:500px; height:500px; margin-top:15px;"></div>
+<script>
+	var receiver, amount;
+	var qrcode = "";
+	clearData();
+	
+	function get(){
+		qrcode = new QRCode(document.getElementById("qrcode"), {
+			width : 500,
+			height : 500
+		});
+		var pass = document.forms['frm'].elements['pass1'].value;
+		pass = pass.trim();
+		var second = document.forms['frm'].elements['pass2'].value;
+		second = second.trim();
+		var amnt = document.forms['frm'].elements['amount'].value;
+		receiver = document.forms['frm'].elements['rec'].value;
+		receiver = receiver.trim();
+		
+		if (isNaN(Number(amnt)))
+			amnt = amnt.replace(',','.');
+		if (isNaN(Number(amnt))){
+			alert('Please specify a valid amount!');
+			return;
+		}
+
+		amnt = Number(amnt);
+		if (confirm("You would like to send "+ amnt +" LSK ?") == false) {
+			return;
+		}
+		amnt = amnt.toFixed(8);
+		amount  = amnt * Math.pow(10, 8); // 100000000000
+		if(amount.toString().indexOf('.')!==-1){
+			amount = amount.toPrecision(amount.toString().indexOf('.'));
+		}
+		amount = Number(amount);
+		var transaction = lisk.transaction.createTransaction(receiver, amount, pass, second);
+		document.getElementById("transaction").innerHTML = JSON.stringify(transaction);
+
+		function makeCode () {		
+			var elText = JSON.stringify(transaction);
+			
+			if (!elText) {
+				alert("Transaction was empty");
+				elText.focus();
+				return;
+			}
+			qrcode.makeCode(elText);
+		}
+		makeCode();
+	}
+	
+	function copyClipboard(){
+		var dummy = document.createElement("input");
+		document.body.appendChild(dummy);
+		dummy.setAttribute("id", "trans");
+		dummy.setAttribute('value', document.forms['frm'].elements['transaction'].value);
+		dummy.select();
+		document.execCommand("copy");
+		document.body.removeChild(dummy);
+	}
+	
+	function clearData(){
+		//document.forms['frm'].elements['pass1'].value = "";
+		//document.forms['frm'].elements['pass2'].value = "";
+		document.getElementById("chkPass1").checked = false;
+		document.getElementById("chkPass2").checked = false;		
+		document.getElementById("transaction").innerHTML = "";
+		document.forms['frm'].elements['amount'].value = "";
+		document.getElementById("qrcode").innerHTML = "";
+		document.forms['frm'].elements['rec'].value = "";
+	}
+	
+	function togglePassword(num){
+		switch(num) {
+			case 1:
+				var chkPass = document.getElementById("chkPass1");
+				var strPass = document.getElementById("pass1");
+				break;
+			case 2:
+				var chkPass = document.getElementById("chkPass2");
+				var strPass = document.getElementById("pass2");
+				break;
+			default:
+				return;
+		} 
+		if (chkPass.checked == true){
+			strPass.setAttribute('type', 'text');
+		} else {
+			strPass.setAttribute('type', 'password');
+		}
+	}	
+</script>
+</body>
