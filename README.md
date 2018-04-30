@@ -8,6 +8,7 @@ Use these tools at your own risk and use it only when you know what you are doin
 * Store the offline-tools on an offline device.
 * Create a transaction with the offline tools
 * Scan the QR code with the Android app to execute the transaction online. (A compiled apk for Android can be found in OnlineBroadcaster/release.)
+* For voting transactions the public keys in <platform>_delegate_public_keys.txt and/or the dutch_pool_votes.txt can be used. These files can be found in the folders for the corresponding platforms.
 
 ## Voting/Donations
 
