@@ -21,6 +21,6 @@ If you like these tools, please consider voting for the Dutch Pool delegates dut
 - BTC: 		1NrA8k8wNRwEZj2ooKQEf2fFnF6KqTE32T
 
 ### Dutch Pool
-More information about Dutch Pool can be found at dutchpool.io
+More information about Dutch Pool can be found at http://dutchpool.io
 
 
