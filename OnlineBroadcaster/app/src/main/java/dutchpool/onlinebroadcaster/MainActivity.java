@@ -59,9 +59,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int ONZ_MAINNET = 6;
     private static final int OXY_TESTNET = 7;
     private static final int OXY_MAINNET = 8;
-    private static final int SHIFT_TESTNET = 9;
-    private static final int SHIFT_MAINNET = 10;
-    private static final int CUSTOM_NODE = 11;
+    private static final int SAUCO_MAINNET = 9;
+    private static final int SHIFT_TESTNET = 10;
+    private static final int SHIFT_MAINNET = 11;
+    private static final int CUSTOM_NODE = 12;
 
     private SurfaceView cameraView;
     private TextView textView;
@@ -309,9 +310,11 @@ public class MainActivity extends AppCompatActivity {
                 return "https://twallet.oxycoin.io/";
             case OXY_MAINNET:         // OXY MAIN NET selected
                 return "https://wallet.oxycoin.io/";
-            case SHIFT_TESTNET:         // OXY TEST NET selected
+            case SAUCO_MAINNET:         // SAUCO MAIN NET selected
+                return "https://wallet.sauco.io/";
+            case SHIFT_TESTNET:         // SHIFT TEST NET selected
                 return "https://wallet.testnet.shiftnrg.org/";
-            case SHIFT_MAINNET:         // OXY MAIN NET selected
+            case SHIFT_MAINNET:         // SHIFT MAIN NET selected
                 return "https://wallet.shiftnrg.org/";
             case CUSTOM_NODE:         // CUSTOM NODE selected
                 return String.valueOf(textCustomNode.getText()) + "/";
