@@ -1,0 +1,7 @@
+{
+  "crypto_type": "Sauco",
+  "votes_per_transaction": 33,
+  "votes_to_remove": ["delegate_name1", "delegate_name2", "etc..."],
+  "votes_to_add": ["delegate_name3", "delegate_name4", "etc..."],
+  "delegates_file": "sauco_delegate_public_keys.json"
+}
