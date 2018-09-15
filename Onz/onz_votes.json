@@ -1,0 +1,7 @@
+{
+  "crypto_type": "Onz",
+  "votes_per_transaction": 11,
+  "votes_to_remove": ["delegate_name1", "delegate_name2", "etc..."],
+  "votes_to_add": ["delegate_name3", "delegate_name4", "etc..."],
+  "delegates_file": "onz_delegate_public_keys.json"
+}
